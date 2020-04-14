@@ -24,7 +24,19 @@ class Parser:
         self.link = link
 
     def parse(self):
-        return
+        result = []
+
+        with open(self.link, 'r') as file:
+            content = file.read()
+            soup = BeautifulSoup(content, 'html.parser')
+
+            elements = soup.select('div.text')
+            elements.pop(0)
+
+            for element in elements:
+                result.append(element.text)
+
+        return result
 
 
 class Category:
@@ -59,6 +71,10 @@ class Library:
         for category in reader.scan():
             self.create_category(category)
 
+    def parse_files(self):
+        for name in self.array.keys():
+            self.array[name].scan()
+
     def compile(self, filename):
         with open(filename, 'x') as file:
             file.write(json.dumps(self.array))
@@ -73,6 +89,7 @@ def main():
 
     library = Library(root)
     library.scan_categories()
+    library.parse_files()
 
 
 if __name__ == '__main__':
