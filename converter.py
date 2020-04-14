@@ -76,8 +76,12 @@ class Library:
             self.array[name].scan()
 
     def compile(self, filename):
-        with open(filename, 'x') as file:
-            file.write(json.dumps(self.array))
+        result = dict()
+        for key in self.array.keys():
+            result[key] = self.array[key].get_array()
+
+        with open(filename, 'w') as file:
+            file.write(json.dumps(result))
 
 
 def main():
@@ -90,6 +94,7 @@ def main():
     library = Library(root)
     library.scan_categories()
     library.parse_files()
+    library.compile('data.json')
 
 
 if __name__ == '__main__':
