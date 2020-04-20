@@ -30,11 +30,17 @@ class Parser:
             content = file.read()
             soup = BeautifulSoup(content, 'html.parser')
 
-            elements = soup.select('div.text')
-            elements.pop(0)
+            elements = soup.select('div.body')
 
             for element in elements:
-                result.append(element.text)
+                for child in element.contents:
+                    try:
+                        if 'text' in child['class']:
+                            result.append(child.string)
+                    except TypeError:
+                        pass
+                    except KeyError:
+                        pass
 
         return result
 
@@ -76,7 +82,6 @@ class Library:
             self.array[name].scan()
 
     def compile(self, path):
-        result = dict()
         for key in self.array.keys():
             root = join(path, key)
 
@@ -88,7 +93,7 @@ class Library:
             array = self.array[key].get_array()
             for index in range(len(array)):
                 with open(join(root, str(index + 1) + '.json'), 'w') as file:
-                    file.write(json.dumps(array[index]))
+                    json.dump(array[index], file)
 
 
 def main():
