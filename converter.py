@@ -75,13 +75,20 @@ class Library:
         for name in self.array.keys():
             self.array[name].scan()
 
-    def compile(self, filename):
+    def compile(self, path):
         result = dict()
         for key in self.array.keys():
-            result[key] = self.array[key].get_array()
+            root = join(path, key)
 
-        with open(filename, 'w') as file:
-            file.write(json.dumps(result))
+            try:
+                os.mkdir(root)
+            except OSError:
+                pass
+
+            array = self.array[key].get_array()
+            for index in range(len(array)):
+                with open(join(root, str(index + 1) + '.json'), 'w') as file:
+                    file.write(json.dumps(array[index]))
 
 
 def main():
@@ -90,11 +97,12 @@ def main():
     config.read('config.ini')
 
     root = config['Converter']['root']
+    raw_data = config['Converter']['raw_data']
 
     library = Library(root)
     library.scan_categories()
     library.parse_files()
-    library.compile('data.json')
+    library.compile(raw_data)
 
 
 if __name__ == '__main__':
