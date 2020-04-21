@@ -20,27 +20,42 @@ class DirectoryReader:
 
 class Parser:
 
-    def __init__(self, link):
-        self.link = link
+    def __init__(self, path):
+        self.path = path
 
     def parse(self):
         result = []
+        iterator = 1
+        parse_over = False
 
-        with open(self.link, 'r') as file:
-            content = file.read()
-            soup = BeautifulSoup(content, 'html.parser')
+        while not parse_over:
+            if iterator == 1:
+                path = join(self.path, 'messages.html')
+            else:
+                path = join(self.path, 'messages' + str(iterator) + '.html')
 
-            elements = soup.select('div.body')
+            with open(path, 'r') as file:
+                content = file.read()
+                soup = BeautifulSoup(content, 'html.parser')
 
-            for element in elements:
-                for child in element.contents:
-                    try:
-                        if 'text' in child['class']:
-                            result.append(child.string)
-                    except TypeError:
-                        pass
-                    except KeyError:
-                        pass
+                elements = soup.select('div.body')
+
+                for element in elements:
+                    for child in element.contents:
+                        try:
+                            if 'text' in child['class']:
+                                result.append(child.string)
+                        except TypeError:
+                            pass
+                        except KeyError:
+                            pass
+
+                next_root = join(self.path, 'messages' + str(iterator + 1) + '.html')
+
+                if len(soup.find_all('a', 'pagination', href=next_root)) == 0:
+                    parse_over = True
+                else:
+                    iterator += 1
 
         return result
 
@@ -56,7 +71,7 @@ class Category:
 
         reader = DirectoryReader(self.root)
         for item in reader.scan():
-            parser = Parser(join(self.root, item, 'messages.html'))
+            parser = Parser(join(self.root, item))
             self.array.append(parser.parse())
 
     def get_array(self):
