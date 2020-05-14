@@ -44,7 +44,7 @@ class Parser:
                     for child in element.contents:
                         try:
                             if 'text' in child['class']:
-                                result.append(child.get_text())
+                                result.append(child.get_text().replace('\n', ' '))
                         except TypeError:
                             pass
                         except KeyError:
