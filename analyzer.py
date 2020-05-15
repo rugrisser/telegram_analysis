@@ -1,7 +1,5 @@
 import re
-import os
 import json
-import nltk
 import pymorphy2
 import converter
 import configparser
